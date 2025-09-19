@@ -7,6 +7,7 @@ require "inventory"
 require "screens/allscreens"
 require "player"
 require "arrow"
+local Camera = require "camera"
 
 -- Variables
 key = love.graphics.newImage("assets/images/key.png")
@@ -24,59 +25,146 @@ arrowList = {}
 mobX = 900
 mobY = 400
 
--- Fonctions Love2D
-function love.load() -- Start
-	-- Pour avoir un random aléatoire
-	math.randomseed(os.time())
-	menu.load()
-	music:setLooping(true)
-	-- music:play()
+local W, H = love.graphics.getWidth(), love.graphics.getHeight()
+local camera = Camera.new()
+
+local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end
+
+-- Convertit coords écran -> monde (pour le tir / clic)
+local function screenToWorld(sx, sy)
+	return camera.x + sx / camera.scale, camera.y + sy / camera.scale
 end
 
+-- Retourne la map de la scène courante
+local function getCurrentMapByScene()
+	if scene == "Map1" then return firstmap
+	elseif scene == "Map2" then return secondmap
+		-- elseif scene == "Map3" then return thirdmap
+	end
+	return nil
+end
+
+-- Informe la caméra de la taille du monde (map)
+local function updateWorldBoundsFromMap(map)
+	local worldW, worldH
+	if map and map.getWorldSize then
+		worldW, worldH = map.getWorldSize()
+	else
+		worldW = (mapW or 40) * (tileSize or 32)
+		worldH = (mapH or 30) * (tileSize or 32)
+	end
+	camera:setWorld(worldW, worldH)
+end
+
+-- Fonctions Love2D
+function love.load()
+	-- Pixel art net même en zoom
+	love.graphics.setDefaultFilter("nearest", "nearest", 1)
+
+	math.randomseed(os.time())
+	menu.load()
+
+	music:setLooping(true)
+	-- music:play()
+
+	-- Démarrage sur le menu ; on réglera la worldSize en entrant en map
+	camera:setScale(1.5) -- ajuste (1.0 = pas de zoom ; 1.5/2.0 = zoom avant)
+end
+
+local lastScene = scene
 
 function love.update(dt) -- Tourne en boucle
-	update_current_screen(dt)
+	-- (1) Logique d'écran (menu / maps)
+	if scene == "Menu" then
+		menu.update(dt)
+	elseif scene == "Map1" then
+		if firstmap.update then firstmap.update(dt) end
+	elseif scene == "Map2" then
+		if secondmap.update then secondmap.update(dt) end
+	end
+
+	-- (2) Changement de scène -> on met à jour la caméra/world
+	if scene ~= lastScene then
+		lastScene = scene
+		local currentMap = getCurrentMapByScene()
+		if currentMap then
+			updateWorldBoundsFromMap(currentMap)
+			-- centre-toi rapidement sur le joueur au premier frame
+			camera:follow(player.posX, player.posY, dt)
+		end
+	end
 
 	if scene ~= "Menu" then
+		-- (3) Inputs joueur + anim
 		input_utilisateur(dt)
 
+		-- (4) Maj flèches + collisions
 		for i, v in ipairs(arrowList) do
 			v:update(dt)
-			if(checkCollision(900, 400, 64, 64, v.x, v.y, 5, 5)) then
-				mobY = 10000
+			if checkCollision(mobX, mobY, 64, 64, v.x, v.y, 5, 5) then
+				mobY = 10000 -- TODO: gérer mort/score/sfx
 			end
 		end
 
-		-- Gestion de l'anim du perso
+		-- GC flèches: on utilise la taille du MONDE (pas l'écran)
+		for i = #arrowList, 1, -1 do
+			local a = arrowList[i]
+			if a.x < -50 or a.x > camera.worldW + 50 or a.y < -50 or a.y > camera.worldH + 50 then
+				table.remove(arrowList, i)
+			end
+		end
+
+		-- (5) Animation perso
 		player.anim_timer = player.anim_timer - dt
 		if player.anim_timer <= 0 then
 			player.anim_timer = 0.1
 			player.frame = player.frame + 1
 			if player.frame > player.max_frame then player.frame = 1 end
-			offset = 32 * player.frame
+			local offset = 32 * (player.frame - 1)
 			player.sprite:setViewport(offset, player.yline, 32, 36)
 		end
+
+		-- (6) Caméra suit le joueur (après déplacements)
+		camera:follow(player.posX, player.posY, dt)
 	end
 end
 
 
 function love.draw() -- Dessine le contenu
-	draw_current_screen()
 	love.graphics.setFont(font)
 
-	if scene ~= "Menu" then
-		love.graphics.draw(player.sprite_sheet, player.sprite, player.posX, player.posY, 
-			player.r, player.xscale, player.yscale, 16, 18)
-
-		love.graphics.draw(key, 10, 10, 0, 0.1, 0.1)
-		love.graphics.draw(mob, mobX, mobY, 0, 0.75, 0.75)
-		love.graphics.draw(heart, 1180, 15, 0, 1.5, 1.5)
-		love.graphics.print(keycount, 80, 20)
-
-		for i, v in ipairs(arrowList) do 
-			v:draw()
-		end
+	if scene == "Menu" then
+		-- Le menu n'est pas “dans le monde”
+		menu.draw()
+		return
 	end
+
+	-- Monde (maps, entités) dans la caméra
+	camera:attach()
+	-- Dessin de la map courante
+	if scene == "Map1" then
+		firstmap.draw()
+	elseif scene == "Map2" then
+		secondmap.draw()
+	end
+
+	-- Entités monde
+	love.graphics.draw(
+			player.sprite_sheet, player.sprite, player.posX, player.posY,
+			player.r, player.xscale, player.yscale, 16, 18
+	)
+
+	for i, v in ipairs(arrowList) do
+		v:draw()
+	end
+
+	love.graphics.draw(mob, mobX, mobY, 0, 0.75, 0.75)
+	camera:detach()
+
+	-- HUD (fixe à l'écran)
+	love.graphics.draw(heart, 1180, 15, 0, 1.5, 1.5)
+	love.graphics.draw(key, 10, 10, 0, 0.1, 0.1)
+	love.graphics.print(keycount, 80, 20)
 end
 
 
@@ -91,6 +179,10 @@ function input_utilisateur(dt)
 		love.event.quit()
 	end
 
+	if key == "+" or key == "kp+" then camera:zoomIn() end
+	if key == "-" or key == "kp-" then camera:zoomOut() end
+	if key == "0" or key == "kp0" then camera:resetZoom() end
+
 	-- Si on appuie sur espace
 	-- if love.keyboard.isDown("space") then
 	-- 	table.insert(arrowList, Arrow(player.posX, player.posY, arrowR))
@@ -98,36 +190,44 @@ function input_utilisateur(dt)
 
 	-- Si on appuie sur clic droit
 	if love.mouse.isDown(1) and not mousePressed then
-        mousePressed = true
-        local mouseX = love.mouse.getX()
-        local mouseY = love.mouse.getY()
-        local arrowR = math.atan2(mouseY - player.posY, mouseX - player.posX)
-        table.insert(arrowList, Arrow(player.posX, player.posY, arrowR))
+		mousePressed = true
+		local sx, sy = love.mouse.getX(), love.mouse.getY()
+		local mx, my = screenToWorld(sx, sy)
+		local arrowR = atan2(my - player.posY, mx - player.posX)
+		table.insert(arrowList, Arrow(player.posX, player.posY, arrowR))
     end
 
     if not love.mouse.isDown(1) then
         mousePressed = false
     end
 
-	if love.keyboard.isDown("up") and player.posY > 32 then
+	local minX, minY = 32, 32
+	local maxX = (camera.worldW or love.graphics.getWidth())  - 30
+	local maxY = (camera.worldH or love.graphics.getHeight()) - 36
+
+	if love.keyboard.isDown("z") and player.posY > minY then
 		player.posY = player.posY - player.speed * dt
 		player.yline = 0
 		player.max_frame = 2
-	elseif love.keyboard.isDown("down") and player.posY < 720 then
+	elseif love.keyboard.isDown("s") and player.posY < maxY then
 		player.posY = player.posY + player.speed * dt
 		player.yline = 36 * 2
 		player.max_frame = 2
-	elseif love.keyboard.isDown("left") and player.posX > 32 then
+	elseif love.keyboard.isDown("q") and player.posX > minX then
 		player.posX = player.posX - player.speed * dt
 		player.yline = 36 * 3
 		player.max_frame = 2
-	elseif love.keyboard.isDown("right") and player.posX < 1250 then
+	elseif love.keyboard.isDown("d") and player.posX < maxX then
 		player.posX = player.posX + player.speed * dt
 		player.yline = 36
 		player.max_frame = 2
 	else
 		player.max_frame = 1
 	end
+end
+
+function love.resize(w, h)
+	if camera and camera.resize then camera:resize() end
 end
 
 function check_player_collisions()
