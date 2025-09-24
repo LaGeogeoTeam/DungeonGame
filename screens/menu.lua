@@ -13,6 +13,8 @@ local characters = {
 -- Variables pour le menu
 local selectedCharacter = 1
 local selectedGender = "male"  -- Par défaut "male"
+local switchCooldown = 0
+local SWITCH_DELAY = 0.18
 
 function menu.load()
     txt = {}
@@ -28,26 +30,8 @@ function menu.load()
 end
 
 function menu.update(dt)
-    -- Gestion de la sélection de personnage avec les touches de flèche
-    if love.keyboard.isDown("left") then
-        selectedCharacter = selectedCharacter - 1
-        if selectedCharacter < 1 then
-            selectedCharacter = #characters
-        end
-        love.timer.sleep(0.2)  -- Petit délai pour éviter la sélection rapide
-    elseif love.keyboard.isDown("right") then
-        selectedCharacter = selectedCharacter + 1
-        if selectedCharacter > #characters then
-            selectedCharacter = 1
-        end
-        love.timer.sleep(0.2)  -- Petit délai pour éviter la sélection rapide
-    elseif love.keyboard.isDown("up") or love.keyboard.isDown("down") then
-        if selectedGender == "male" then
-            selectedGender = "female"
-        else
-            selectedGender = "male"
-        end
-        love.timer.sleep(0.2)  -- Petit délai pour éviter la sélection rapide
+    if switchCooldown > 0 then
+        switchCooldown = switchCooldown - dt
     end
 end
 
@@ -86,7 +70,16 @@ function menu.draw()
 end
 
 function menu.keypressed(key)
-    if key == 'space' then
+    if key == "left" and switchCooldown <= 0 then
+        selectedCharacter = (selectedCharacter - 2) % #characters + 1
+        switchCooldown = SWITCH_DELAY
+    elseif key == "right" and switchCooldown <= 0 then
+        selectedCharacter = (selectedCharacter) % #characters + 1
+        switchCooldown = SWITCH_DELAY
+    elseif (key == "up" or key == "down") and switchCooldown <= 0 then
+        selectedGender = (selectedGender == "male") and "female" or "male"
+        switchCooldown = SWITCH_DELAY
+    elseif key == 'space' then
         -- Mettre à jour la sprite_sheet du joueur avec le personnage et le genre sélectionnés
         local character = characters[selectedCharacter]
         local imagePath = (selectedGender == "male") and character.male or character.female
