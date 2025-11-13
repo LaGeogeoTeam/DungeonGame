@@ -15,7 +15,7 @@ secondmap.grid = {
 	3,2,2,2,2,2,2,3,1,1,1,2,3,3,2,2,2,2,2,3
 }
 
-house = love.graphics.newImage("assets/images/house.png")
+local house = love.graphics.newImage("assets/images/house.png")
 
 function secondmap.update(dt)
 	-- Si le player touche la zone pour aller à map2
@@ -34,7 +34,7 @@ function secondmap.update(dt)
 end
 
 function secondmap.draw()
-	cpt = 1
+	local cpt = 1
 	for y=1, mapH, 1 do
 		for x=1, mapW, 1 do
 			tileId = secondmap.grid[cpt]
@@ -44,6 +44,10 @@ function secondmap.draw()
 	end
 
 	love.graphics.draw(house, 9*tileSize, 3*tileSize, 0, 1.3, 1.3)
+end
+
+function secondmap.getWorldSize()
+	return (mapW or 40) * (tileSize or 32), (mapH or 30) * (tileSize or 32)
 end
 
 return secondmap

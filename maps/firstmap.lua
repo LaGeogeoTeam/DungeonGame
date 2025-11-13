@@ -15,7 +15,7 @@ firstmap.grid = {
 	3,2,2,2,2,2,2,3,2,2,2,2,3,3,2,2,2,2,2,3
 }
 
-arbre = love.graphics.newImage("assets/images/arbre.png")
+local arbre = love.graphics.newImage("assets/images/arbre.png")
 
 function firstmap.update(dt)
 	-- Si le player touche la zone pour aller à map2
@@ -33,7 +33,7 @@ function firstmap.update(dt)
 end
 
 function firstmap.draw()
-	cpt = 1
+	local cpt = 1
 	for y=1, mapH, 1 do
 		for x=1, mapW, 1 do
 			tileId = firstmap.grid[cpt]
@@ -49,6 +49,10 @@ function firstmap.draw()
 	love.graphics.draw(arbre, 16*tileSize, 6*tileSize)
 	love.graphics.draw(arbre, 5*tileSize, 7*tileSize)
 	love.graphics.draw(arbre, 19*tileSize, 10*tileSize)
+end
+
+function firstmap.getWorldSize()
+	return (mapW or 40) * (tileSize or 32), (mapH or 30) * (tileSize or 32)
 end
 
 return firstmap

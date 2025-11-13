@@ -5,4 +5,5 @@ function love.conf(w)
 	w.window.height = 768
 	-- On donne un titre à la fenêtre
 	w.title = "Mini Jeu Love 2D"
+	w.console = true
 end
