@@ -1,0 +1,25 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+    },
+    "last.exportedFilePath": "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/maps",
+    "last.externalTilesetPath": "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled",
+    "last.imagePath": "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tilemap",
+    "map.height": 48,
+    "map.lastUsedExportFilter": "Fichiers Lua (*.lua)",
+    "map.lastUsedFormat": "tmx",
+    "map.width": 64,
+    "openFiles": [
+    ],
+    "project": "map_without_objects.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+    ],
+    "tileset.lastUsedFilter": "Fichiers de jeu de tuiles Tiled (*.tsx *.xml)"
+}

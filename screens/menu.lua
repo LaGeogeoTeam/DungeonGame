@@ -85,7 +85,7 @@ function menu.keypressed(key)
         local imagePath = (selectedGender == "male") and character.male or character.female
         player.sprite_sheet = love.graphics.newImage(imagePath)
         player.sprite = love.graphics.newQuad(0, player.yline, 32, 36, player.sprite_sheet:getDimensions())
-        scene = "Map1"
+        scene = "Dungeon"
     end
 end
 

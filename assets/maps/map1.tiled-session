@@ -1,0 +1,32 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled/sampleMap.tmx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
+    "fileStates": {
+        "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled/sampleMap.tmx": {
+            "scale": 1,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 372,
+                "y": 351
+            }
+        },
+        "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled/sampleSheet.tsx": {
+            "scaleInDock": 1.5
+        }
+    },
+    "map.height": 48,
+    "map.width": 64,
+    "openFiles": [
+        "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled/sampleMap.tmx"
+    ],
+    "project": "map1.tiled-project",
+    "recentFiles": [
+        "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled/sampleMap.tmx"
+    ]
+}

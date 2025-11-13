@@ -4,27 +4,25 @@
 --- DateTime: 19/09/2025 16:24
 ---
 
--- camera.lua (zoom + clamp + resize + pixel-perfect)
 local Camera = {}
 Camera.__index = Camera
 
 function Camera.new()
     local self = setmetatable({}, Camera)
     self.x, self.y = 0, 0
-    self.scale = 1      -- 1 = pas de zoom ; >1 = zoom avant
+    self.scale = 1
     self.minScale = 1
     self.maxScale = 3
     self.zoomStep = 0.25
     self.lerp = 10
     self.worldW = love.graphics.getWidth()
     self.worldH = love.graphics.getHeight()
-    self.w = love.graphics.getWidth()   -- largeur VISIBLE en unités monde (maj via updateViewport)
+    self.w = love.graphics.getWidth()
     self.h = love.graphics.getHeight()
     return self
 end
 
 function Camera:updateViewport()
-    -- zone visible en unités "monde" après zoom
     self.w = love.graphics.getWidth()  / self.scale
     self.h = love.graphics.getHeight() / self.scale
 end
@@ -55,7 +53,6 @@ function Camera:follow(tx, ty, dt)
     local targetX = tx - self.w * 0.5
     local targetY = ty - self.h * 0.5
 
-    -- lissage
     local k = math.min(1, self.lerp * (dt or 0))
     self.x = self.x + (targetX - self.x) * k
     self.y = self.y + (targetY - self.y) * k
@@ -69,7 +66,6 @@ end
 
 function Camera:attach()
     love.graphics.push()
-    -- pixel art net même en zoom : voir setDefaultFilter côté main.lua
     love.graphics.scale(self.scale, self.scale)
     love.graphics.translate(-math.floor(self.x), -math.floor(self.y))
 end

@@ -14,7 +14,7 @@ key = love.graphics.newImage("assets/images/key.png")
 heart = love.graphics.newImage("assets/images/heart.png")
 mob = love.graphics.newImage("assets/images/snake.png")
 
--- Police écriture
+
 font = love.graphics.newFont("assets/fonts/Bebas.ttf", 35)
 fontBig = love.graphics.newFont("assets/fonts/Bebas.ttf", 55)
 fontSmall = love.graphics.newFont("assets/fonts/Bebas.ttf", 20)
@@ -39,6 +39,9 @@ end
 local function getCurrentMapByScene()
 	if scene == "Map1" then return firstmap
 	elseif scene == "Map2" then return secondmap
+	elseif scene == "Map3" then return thirdmap
+	elseif scene == "Dungeon" then
+		return dungeon
 		-- elseif scene == "Map3" then return thirdmap
 	end
 	return nil
@@ -56,9 +59,9 @@ local function updateWorldBoundsFromMap(map)
 	camera:setWorld(worldW, worldH)
 end
 
--- Fonctions Love2D
+
 function love.load()
-	-- Pixel art net même en zoom
+
 	love.graphics.setDefaultFilter("nearest", "nearest", 1)
 
 	math.randomseed(os.time())
@@ -67,14 +70,14 @@ function love.load()
 	music:setLooping(true)
 	-- music:play()
 
-	-- Démarrage sur le menu ; on réglera la worldSize en entrant en map
+
 	camera:setScale(1.5) -- ajuste (1.0 = pas de zoom ; 1.5/2.0 = zoom avant)
 end
 
 local lastScene = scene
 
 function love.update(dt) -- Tourne en boucle
-	-- (1) Logique d'écran (menu / maps)
+
 	if scene == "Menu" then
 		menu.update(dt)
 	elseif scene == "Map1" then
@@ -83,22 +86,21 @@ function love.update(dt) -- Tourne en boucle
 		if secondmap.update then secondmap.update(dt) end
 	end
 
-	-- (2) Changement de scène -> on met à jour la caméra/world
+
 	if scene ~= lastScene then
 		lastScene = scene
 		local currentMap = getCurrentMapByScene()
 		if currentMap then
 			updateWorldBoundsFromMap(currentMap)
-			-- centre-toi rapidement sur le joueur au premier frame
+
 			camera:follow(player.posX, player.posY, dt)
 		end
 	end
 
 	if scene ~= "Menu" then
-		-- (3) Inputs joueur + anim
+
 		input_utilisateur(dt)
 
-		-- (4) Maj flèches + collisions
 		for i, v in ipairs(arrowList) do
 			v:update(dt)
 			if checkCollision(mobX, mobY, 64, 64, v.x, v.y, 5, 5) then
@@ -106,7 +108,6 @@ function love.update(dt) -- Tourne en boucle
 			end
 		end
 
-		-- GC flèches: on utilise la taille du MONDE (pas l'écran)
 		for i = #arrowList, 1, -1 do
 			local a = arrowList[i]
 			if a.x < -50 or a.x > camera.worldW + 50 or a.y < -50 or a.y > camera.worldH + 50 then
@@ -114,7 +115,7 @@ function love.update(dt) -- Tourne en boucle
 			end
 		end
 
-		-- (5) Animation perso
+
 		player.anim_timer = player.anim_timer - dt
 		if player.anim_timer <= 0 then
 			player.anim_timer = 0.1
@@ -124,7 +125,6 @@ function love.update(dt) -- Tourne en boucle
 			player.sprite:setViewport(offset, player.yline, 32, 36)
 		end
 
-		-- (6) Caméra suit le joueur (après déplacements)
 		camera:follow(player.posX, player.posY, dt)
 	end
 end
@@ -146,6 +146,10 @@ function love.draw() -- Dessine le contenu
 		firstmap.draw()
 	elseif scene == "Map2" then
 		secondmap.draw()
+	elseif scene == "Dungeon" then
+		dungeon.draw(camera)
+		-- elseif scene == "Map3" then
+		-- 	thirdmap.draw()
 	end
 
 	-- Entités monde
@@ -174,6 +178,14 @@ end
 
 -- Fonctions perso
 
+local function getPlayerAABBAt(x, y)
+	-- sprite = 32x36 avec origine (16,18) ; on prend une hitbox un peu plus petite
+	local w, h = 20, 26
+	local ax = x - 10      -- 10 px à gauche du centre approx.
+	local ay = y - 13      -- 13 px au-dessus du centre approx.
+	return ax, ay, w, h
+end
+
 function input_utilisateur(dt)
 	if love.keyboard.isDown("escape") then
 		love.event.quit()
@@ -182,11 +194,6 @@ function input_utilisateur(dt)
 	if key == "+" or key == "kp+" then camera:zoomIn() end
 	if key == "-" or key == "kp-" then camera:zoomOut() end
 	if key == "0" or key == "kp0" then camera:resetZoom() end
-
-	-- Si on appuie sur espace
-	-- if love.keyboard.isDown("space") then
-	-- 	table.insert(arrowList, Arrow(player.posX, player.posY, arrowR))
-	-- end
 
 	-- Si on appuie sur clic droit
 	if love.mouse.isDown(1) and not mousePressed then
@@ -205,24 +212,50 @@ function input_utilisateur(dt)
 	local maxX = (camera.worldW or love.graphics.getWidth())  - 30
 	local maxY = (camera.worldH or love.graphics.getHeight()) - 36
 
+	local dx, dy = 0, 0
 	if love.keyboard.isDown("z") and player.posY > minY then
-		player.posY = player.posY - player.speed * dt
+		dy = dy - player.speed * dt
 		player.yline = 0
 		player.max_frame = 2
 	elseif love.keyboard.isDown("s") and player.posY < maxY then
-		player.posY = player.posY + player.speed * dt
+		dy = dy + player.speed * dt
 		player.yline = 36 * 2
 		player.max_frame = 2
 	elseif love.keyboard.isDown("q") and player.posX > minX then
-		player.posX = player.posX - player.speed * dt
+		dx = dx - player.speed * dt
 		player.yline = 36 * 3
 		player.max_frame = 2
 	elseif love.keyboard.isDown("d") and player.posX < maxX then
-		player.posX = player.posX + player.speed * dt
+		dx = dx + player.speed * dt
 		player.yline = 36
 		player.max_frame = 2
 	else
 		player.max_frame = 1
+	end
+
+	local map = currentMap or getCurrentMapByScene()
+
+	-- Passe X
+	if dx ~= 0 then
+		local nx = player.posX + dx
+		local ax, ay, aw, ah = getPlayerAABBAt(nx, player.posY)
+		if not (map and map.rectCollides and map:rectCollides(ax, ay, aw, ah)) then
+			player.posX = nx
+		else
+			-- Snap au bord du bloc (facultatif, simple : on annule)
+			-- Pour un snap précis, on peut calculer la tuile et ajuster, mais ça suffit pour commencer
+		end
+	end
+
+	-- Passe Y
+	if dy ~= 0 then
+		local ny = player.posY + dy
+		local ax, ay, aw, ah = getPlayerAABBAt(player.posX, ny)
+		if not (map and map.rectCollides and map:rectCollides(ax, ay, aw, ah)) then
+			player.posY = ny
+		else
+			-- idem : on annule le mouvement sur Y si collision
+		end
 	end
 end
 

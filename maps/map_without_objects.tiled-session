@@ -1,0 +1,72 @@
+{
+    "activeFile": "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/dungeon.tmx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/dungeon.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 511.99999999999994,
+                "y": 344
+            }
+        },
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/dungeon.tmx#tileset": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/tilemap.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/tileset.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/tilesets/tileset.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/LaGeogeoTeam/Desktop/Pictures/Assets/Tiny Dungeon/Tiled/sampleSheet.tsx": {
+            "scaleInDock": 1
+        },
+        "C:/Users/LaGeogeoTeam/Pictures/Assets/Tiny Dungeon/Tiled/sampleSheet.tsx": {
+            "scaleInDock": 1.5
+        },
+        "map_without_object.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 457.33333333333326,
+                "y": 428
+            }
+        }
+    },
+    "last.exportedFilePath": "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps",
+    "last.externalTilesetPath": "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/tilesets",
+    "last.imagePath": "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/tilesets",
+    "map.lastUsedExportFilter": "Tous les Fichiers (*)",
+    "openFiles": [
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/dungeon.tmx",
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/tilesets/tileset.tsx"
+    ],
+    "project": "map_without_objects.tiled-project",
+    "recentFiles": [
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/tilesets/tileset.tsx",
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/dungeon.tmx",
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/tileset.tsx",
+        "C:/Users/LaGeogeoTeam/Desktop/ArrowGame/assets/maps/tilemap.tsx",
+        "map_without_object.tmx"
+    ],
+    "tileset.embedInMap": false,
+    "tileset.lastUsedFilter": "Tous les Fichiers (*)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
